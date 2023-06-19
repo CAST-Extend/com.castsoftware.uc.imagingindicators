@@ -2,7 +2,7 @@ import os
 import time
 import xlsxwriter
 from cast.application import Server, ApplicationLevelExtension, create_postgres_engine
-from tkinter.font import BOLD
+# from tkinter.font import BOLD
 import logging
 
 
@@ -10,36 +10,39 @@ class Report(ApplicationLevelExtension):
 
 
     def __init__(self):
-        self.no_of_scans_to_make_anlys_cmplnt_with_IMA = ''
+        self.itrtn_no = 0
+        self.app_name = 'NULL'
+        self.current_date_time= 'NULL'
+        self.no_of_scans_to_make_anlys_cmplnt_with_IMA = 0
         self.app_size_in_KLOC = 0.0
-        self.artfct_cvrge_ratio = '' 
-        self.no_of_complete_trans = ''
-        self.data_entities_by_trans = ''
-        self.ratio_of_complete_trans_LOC = ''
-        self.ratio_of_non_empty_trans = ''
-        self.class_coverage_ratio = ''
-        self.prog_in_trans = ''
-        self.no_of_links = ''
-        self.ratio_of_msg_que = ''
-        self.ratio_of_soap_java_ope = ''
-        self.ratio_of_rest_call = ''
-        self.ratio_of_ope_call = ''
-        self.no_of_unrev_dyn_lick = ''
-        self.ratio_of_spring_mvc = ''
-        self.ratio_of_typescript_angular_node_calls = ''
-        self.AEFP_AETP_ratio = ''
-        self.logs_info_missing_file_dll_jars = ''
-        self.TFP_DFP_ratio = ''
-        self.no_of_valid_entry_points = ''
-        self.no_of_valid_endpoints = ''
-        self.no_of_exclusion = ''
-        self.unanalyzed_code = ''
-        self.missing_tables = ''
-        self.no_of_tickets_to_make_ana_compliant_with_IMG = ''
-        self.technology = ''
-        self.extn_installed = ''
-        self.use_case = ''
-        self.tech_code_review = ''
+        self.artfct_cvrge_ratio = 0
+        self.no_of_complete_trans = 0
+        self.data_entities_by_trans = 0
+        self.ratio_of_complete_trans_LOC = 0.0
+        self.ratio_of_non_empty_trans = 0
+        self.class_coverage_ratio = 0.0
+        self.prog_in_trans = 0.0
+        self.no_of_links = 0
+        self.ratio_of_msg_que = 'NULL'
+        self.ratio_of_soap_java_ope = 'NULL'
+        self.ratio_of_rest_call = 'NULL'
+        self.ratio_of_ope_call = 'NULL'
+        self.no_of_unrev_dyn_lick = 0
+        self.ratio_of_spring_mvc = 'NULL'
+        self.ratio_of_typescript_angular_node_calls = 'NULL'
+        self.AEFP_AETP_ratio = 0
+        self.logs_info_missing_file_dll_jars = 'NULL'
+        self.TFP_DFP_ratio = 0
+        self.no_of_valid_entry_points = 0
+        self.no_of_valid_endpoints = 0
+        self.no_of_exclusion = 0
+        self.unanalyzed_code = 0
+        self.missing_tables = 0
+        self.no_of_tickets_to_make_ana_compliant_with_IMG = 0
+        self.technology = 'NULL'
+        self.extn_installed = 'NULL'
+        self.use_case = 0
+        self.tech_code_review = 0
 
     
     def start_application(self, application):
@@ -71,7 +74,7 @@ class Report(ApplicationLevelExtension):
 
         try:
             
-            create_table_query = """CREATE TABLE IF NOT EXISTS IMG_INDICATORS( itrtn_no INT, app_name VARCHAR(100), 
+            create_table_query = """CREATE TABLE IF NOT EXISTS IMG_INDICATORS( itrtn_no INT, app_name VARCHAR(100), current_date_time VARCHAR(100),
             no_of_scans_to_make_anlys_cmplnt_with_IMA INT, app_size_in_KLOC FLOAT, artfct_cvrge_ratio INT, no_of_complete_trans  INT, 
             data_entities_by_trans INT, ratio_of_complete_trans_LOC FLOAT, ratio_of_non_empty_trans INT, class_coverage_ratio FLOAT, 
             prog_in_trans FLOAT, no_of_links INT, ratio_of_msg_que VARCHAR(50), ratio_of_soap_java_ope VARCHAR(50), ratio_of_rest_call VARCHAR(50),
@@ -83,7 +86,7 @@ class Report(ApplicationLevelExtension):
             application.sql_tool(create_table_query)
 
         except Exception as e:
-            logging.info("Some exception has occured while creating tabale -> "+str(e))
+            logging.info("Some exception has occurred while creating table -> "+str(e))
 
         else:    
             logging.info("created table IMG_INDICATORS.")
@@ -149,6 +152,23 @@ class Report(ApplicationLevelExtension):
         # # logging.info('central_schema -> '+str(central_schema))
         # central = server.get_schema(central_schema)
         
+        try:
+            for line in kb.execute_query("""SELECT itrtn_no FROM img_indicators ORDER BY itrtn_no DESC LIMIT 1;"""):
+                self.itrtn_no = int(line[0]) + 1
+                if self.itrtn_no is None:
+                    self.itrtn_no = 0
+                
+        except Exception as e:
+            self.itrtn_no = 0
+
+        logging.info('itrtn_no -> '+str(self.itrtn_no))
+        
+        self.app_name = application.name
+        logging.info('app_name -> '+str(self.app_name))
+        
+        self.current_date_time = time.strftime("%Y-%m-%d_%H:%M:%S")
+        logging.info('current_date_time -> '+str(self.current_date_time))
+        
         for line in mngt.execute_query("""select count(*) from tasklog_history where lower(log_context) like lower('%Execute_Analysis%MainTask_SummaryLog%')"""):
             self.no_of_scans_to_make_anlys_cmplnt_with_IMA = line[0]
             if self.no_of_scans_to_make_anlys_cmplnt_with_IMA is None:
@@ -200,7 +220,14 @@ class Report(ApplicationLevelExtension):
             self.no_of_complete_trans = line[0]
             if self.no_of_complete_trans is None:
                 self.no_of_complete_trans = 0
-            logging.info('no_of_complete_trans -> '+str(self.no_of_complete_trans) )            
+            logging.info('no_of_complete_trans -> '+str(self.no_of_complete_trans) )
+            
+        for line in kb.execute_query("""select count(object_id) from cdt_objects where lower(object_type_str) like '%table%' and object_id in 
+        (select child_id from dss_transactiondetails);"""):
+            self.data_entities_by_trans = line[0]
+            if self.data_entities_by_trans is None:
+                self.data_entities_by_trans = 0
+            logging.info('data_entities_by_trans -> '+str(self.data_entities_by_trans))
         
         for line in kb.execute_query("""select round((afp.fp:: float/codelines.LOC :: float), 2)
         from (select sum(oi.infval) as LOC FROM   objinf oi, keys k, cdt_objects cdt, csv_file_objects cfo
@@ -226,7 +253,7 @@ class Report(ApplicationLevelExtension):
         and dtr.cal_flags not in (  8, 10, 126, 128,136, 138, 256, 258 )  and DTR.tf_ex=0  ) tb_empty_tr;"""):
             self.ratio_of_non_empty_trans = line[0]
             if self.ratio_of_non_empty_trans is None:
-                ratio_of_non_empty_trans = 0
+                self.ratio_of_non_empty_trans = 0
             logging.info('ratio_of_non_empty_trans -> '+str(self.ratio_of_non_empty_trans))
             
         for line in central.execute_query("""select  cast(fp_to_pgmclass_ratio as text) as percentage_ratio from(
@@ -407,36 +434,18 @@ class Report(ApplicationLevelExtension):
                 self.tech_code_review = 0
             logging.info('tech_code_review -> '+str(self.tech_code_review))
             
-        # kb.execute_query("""Insert into IMG_INDICATORS(no_of_scans_to_make_anlys_cmplnt_with_IMA, artfct_cvrge_ratio, no_of_links, ratio_of_msg_que, ratio_of_soap_java_ope, ratio_of_rest_call, ratio_of_ope_call) values 
-        # ("""+str(no_of_scans_to_make_anlys_cmplnt_with_IMA)+""", """+str(artfct_cvrge_ratio)+""", """+str(no_of_links)+""", '"""+str(ratio_of_msg_que)+"""', '"""+str(ratio_of_msg_que)+"""', '"""+str(ratio_of_msg_que)+"""', '"""+str(ratio_of_msg_que)+"""');""")
-        #
 
-        # logging.info("Inserting data into IMG_INDICATORS table......") 
-
-        # logging.info('kb dir ->'+str(dir(kb)))
-
-        # logging.info('application dir ->'+str(dir(application)))
-
-        # try:
-        #     insert_table_query = """Insert into IMG_INDICATORS(no_of_scans_to_make_anlys_cmplnt_with_IMA, app_size_in_KLOC, artfct_cvrge_ratio, no_of_complete_trans, ratio_of_complete_trans_LOC, ratio_of_non_empty_trans, class_coverage_ratio, prog_in_trans, no_of_links, ratio_of_msg_que, ratio_of_soap_java_ope, ratio_of_rest_call, ratio_of_ope_call, no_of_unrev_dyn_lick, ratio_of_spring_mvc, ratio_of_typescript_angular_node_calls, AEFP_AETP_ratio, no_of_valid_entry_points, no_of_valid_endpoints, no_of_exclusion, technology, extn_installed, tech_code_review) values  ("""+str(no_of_scans_to_make_anlys_cmplnt_with_IMA)+""", """+str(app_size_in_KLOC)+""", """+str(artfct_cvrge_ratio)+""", """ +str(no_of_complete_trans)+""", """ +str(ratio_of_complete_trans_LOC)+""", """+str(ratio_of_non_empty_trans)+""", """+str(class_coverage_ratio)+""", """+str(prog_in_trans)+""", """+str(no_of_links)+""", '"""+str(ratio_of_msg_que) +"""' ,'"""+str(ratio_of_soap_java_ope)+"""' ,'"""+str(ratio_of_rest_call)+"""' ,'"""+str(ratio_of_ope_call)+"""',""" +str(no_of_unrev_dyn_lick)+""",'"""+str(ratio_of_spring_mvc)+"""','"""+str(ratio_of_typescript_angular_node_calls)+"""', """ +str(AEFP_AETP_ratio)+""", """+str(no_of_valid_entry_points)+""", """+str(no_of_valid_endpoints)+""", """+str(no_of_exclusion) +""", '"""+str(technology)+"""', '"""+str(extn_installed)+"""',"""+str(no_of_valid_endpoints)+""");"""
-        #     application.kb.sql_tool(insert_table_query)
-
-        # except Exception as e:
-        #     logging.info("Some exception has occured while inserting into tabale -> "+str(e))
-
-        # else:    
-        #     logging.info("Inserted data into IMG_INDICATORS table.") 
         logging.info("Inserting data into IMG_INDICATORS table......")
         try:  
             self.insertTable_IMG_INDICATORS(kb)
         except Exception as e:
-            logging.info("Some exception has occured while inserting into tabale -> "+str(e))
+            logging.info("Some exception has occurred while inserting into table -> "+str(e))
         else:    
             logging.info("Inserted data into IMG_INDICATORS table.")   
 
     def insertTable_IMG_INDICATORS(self, kb):
 
         cr = kb.create_cursor()
-        insert_table_query = """Insert into IMG_INDICATORS(no_of_scans_to_make_anlys_cmplnt_with_IMA, app_size_in_KLOC, artfct_cvrge_ratio, no_of_complete_trans, ratio_of_complete_trans_LOC, ratio_of_non_empty_trans, class_coverage_ratio, prog_in_trans, no_of_links, ratio_of_msg_que, ratio_of_soap_java_ope, ratio_of_rest_call, ratio_of_ope_call, no_of_unrev_dyn_lick, ratio_of_spring_mvc, ratio_of_typescript_angular_node_calls, AEFP_AETP_ratio, no_of_valid_entry_points, no_of_valid_endpoints, no_of_exclusion, technology, extn_installed, tech_code_review) values  ("""+str(self.no_of_scans_to_make_anlys_cmplnt_with_IMA)+""", """+str(self.app_size_in_KLOC)+""", """+str(self.artfct_cvrge_ratio)+""", """ +str(self.no_of_complete_trans)+""", """ +str(self.ratio_of_complete_trans_LOC)+""", """+str(self.ratio_of_non_empty_trans)+""", """+str(self.class_coverage_ratio)+""", """+str(self.prog_in_trans)+""", """+str(self.no_of_links)+""", '"""+str(self.ratio_of_msg_que) +"""' ,'"""+str(self.ratio_of_soap_java_ope)+"""' ,'"""+str(self.ratio_of_rest_call)+"""' ,'"""+str(self.ratio_of_ope_call)+"""',""" +str(self.no_of_unrev_dyn_lick)+""",'"""+str(self.ratio_of_spring_mvc)+"""','"""+str(self.ratio_of_typescript_angular_node_calls)+"""', """ +str(self.AEFP_AETP_ratio)+""", """+str(self.no_of_valid_entry_points)+""", """+str(self.no_of_valid_endpoints)+""", """+str(self.no_of_exclusion) +""", '"""+str(self.technology)+"""', '"""+str(self.extn_installed)+"""',"""+str(self.no_of_valid_endpoints)+""");"""
+        insert_table_query = """Insert into IMG_INDICATORS(itrtn_no, app_name, current_date_time, no_of_scans_to_make_anlys_cmplnt_with_IMA, app_size_in_KLOC, artfct_cvrge_ratio, no_of_complete_trans, data_entities_by_trans, ratio_of_complete_trans_LOC, ratio_of_non_empty_trans, class_coverage_ratio, prog_in_trans, no_of_links, ratio_of_msg_que, ratio_of_soap_java_ope, ratio_of_rest_call, ratio_of_ope_call, no_of_unrev_dyn_lick, ratio_of_spring_mvc, ratio_of_typescript_angular_node_calls, AEFP_AETP_ratio, no_of_valid_entry_points, no_of_valid_endpoints, no_of_exclusion, technology, extn_installed, tech_code_review) values  ("""+str(self.itrtn_no)+""", '"""+str(self.app_name)+"""', '"""+str(self.current_date_time)+"""', """+str(self.no_of_scans_to_make_anlys_cmplnt_with_IMA)+""", """+str(self.app_size_in_KLOC)+""", """+str(self.artfct_cvrge_ratio)+""", """ +str(self.no_of_complete_trans)+""", """ +str(self.data_entities_by_trans)+""", """+str(self.ratio_of_complete_trans_LOC)+""", """+str(self.ratio_of_non_empty_trans)+""", """+str(self.class_coverage_ratio)+""", """+str(self.prog_in_trans)+""", """+str(self.no_of_links)+""", '"""+str(self.ratio_of_msg_que) +"""' ,'"""+str(self.ratio_of_soap_java_ope)+"""' ,'"""+str(self.ratio_of_rest_call)+"""' ,'"""+str(self.ratio_of_ope_call)+"""',""" +str(self.no_of_unrev_dyn_lick)+""",'"""+str(self.ratio_of_spring_mvc)+"""','"""+str(self.ratio_of_typescript_angular_node_calls)+"""', """ +str(self.AEFP_AETP_ratio)+""", """+str(self.no_of_valid_entry_points)+""", """+str(self.no_of_valid_endpoints)+""", """+str(self.no_of_exclusion) +""", '"""+str(self.technology)+"""', '"""+str(self.extn_installed)+"""',"""+str(self.no_of_valid_endpoints)+""");"""
         
         kb._execute_raw_query(cr, insert_table_query)    
