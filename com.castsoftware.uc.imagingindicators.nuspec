@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>com.castsoftware.uc.imagingindicators</id>
+    <version>1.0.2</version>
+    <title>Imaging Indicators</title>
+    <authors>CAST User Community</authors>
+    <owners>CAST</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://extend.castsoftware.com/api/package/license/uc</licenseUrl>
+    <projectUrl>https://github.com/CAST-Extend/com.castsoftware.uc.imagingindicators/wiki/Documentation</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/CAST-Extend/resources/master/com.castsoftware.dlm.png</iconUrl>
+    <description>In order to ensure the quality of the data produced by CAST Analysis, this extension will help in collecting a set of indicators that can help determine if the data is suitable for use with the Imaging product.</description>
+    <releaseNotes>https://github.com/CAST-Extend/com.castsoftware.uc.imagingindicators/wiki#version-102</releaseNotes>
+    <tags>techno:Java, .NET, Mainframe, Cobol CAIP8.0.x CAIP8.1.x CAIP8.2.x CAIP8.3.x Language Quality</tags>
+    <dependencies>
+      <dependency id="CAIP" version="8.0.0" />
+    </dependencies>
+  </metadata>
+</package>
