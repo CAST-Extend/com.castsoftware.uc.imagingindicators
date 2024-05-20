@@ -18,7 +18,7 @@ class Report(ApplicationLevelExtension):
         self.end_date_time = 'NULL'
         self.no_of_scans_to_make_anlys_cmplnt_with_IMA = 0
         self.app_size_in_KLOC = 0.0
-        self.artfct_cvrge_ratio = 'NULL'
+        self.artfct_cvrge_ratio = 0
         self.no_of_complex_trans = 0
         self.data_entities_by_trans = 0
         self.ratio_of_complete_trans_LOC = 0.0
@@ -186,7 +186,7 @@ class Report(ApplicationLevelExtension):
         #
 
         for line in kb.execute_query("""select 
-        cast((covered_count*100/ case when total_count = 0 then 1 else total_count end)as text) ||'%' as percentage_ratio from
+        cast((covered_count*100/ case when total_count = 0 then 1 else total_count end)as text) as percentage_ratio from
         ( select count(distinct cdt.object_id) as total_count from cdt_objects cdt, ctt_object_applications ctt where 
         cdt.object_id = ctt.object_id and ctt.properties <> 1 and cdt.object_type_str in ('Progress Program', 'Cobol Program', 'C++ Class'
         , 'VB.NET Class', 'ColdFusion Fuse Action', 'VB MDI Form', 'SHELL Program', 'ColdFusion Template', 'C/C++ File', 'C# Class'
@@ -210,7 +210,8 @@ class Report(ApplicationLevelExtension):
         ,'VB MDI Form','SHELL Program','ColdFusion Template','C/C++ File','C# Class','Java Class','VB Module','Session')) covered"""):
             self.artfct_cvrge_ratio = line[0]
             if self.artfct_cvrge_ratio is None:
-                artfct_cvrge_ratio = 0
+                self.artfct_cvrge_ratio = 0
+            self.artfct_cvrge_ratio = self.artfct_cvrge_ratio + '%'
             logging.info('artfct_cvrge_ratio -> '+str(self.artfct_cvrge_ratio) )
         
         #for line in kb.execute_query("""select count(1) from dss_transactiondetails"""):
@@ -249,10 +250,10 @@ class Report(ApplicationLevelExtension):
         where dtr.form_id = cob.object_id and dtr.cal_mergeroot_id = 0  and dtr.cal_flags not in (  8, 10, 126, 128,136, 138, 256, 258 ) ) tb_all_tr,
         (select count(cob.object_name) as tr_count from dss_transaction dtr, cdt_objects cob where dtr.form_id = cob.object_id and dtr.cal_mergeroot_id = 0  
         and dtr.cal_flags not in (  8, 10, 126, 128,136, 138, 256, 258 )  and DTR.tf_ex=0  ) tb_empty_tr;"""):
-            #self.ratio_of_non_empty_trans = line[0]
-            self.ratio_of_non_empty_trans = 100 - int(line[0])
+            self.ratio_of_non_empty_trans = line[0]
             if self.ratio_of_non_empty_trans is None:
                 self.ratio_of_non_empty_trans = 0
+            self.ratio_of_non_empty_trans = 100 - int(self.ratio_of_non_empty_trans)
             logging.info('ratio_of_non_empty_trans -> '+str(self.ratio_of_non_empty_trans))
             
         for line in central.execute_query("""select  cast(fp_to_pgmclass_ratio as text) as percentage_ratio from(
@@ -266,7 +267,7 @@ class Report(ApplicationLevelExtension):
         (select max(snapshot_id) from dss_snapshots) and t1.metric_id in ( 10203, 10204)) as fp_count ) as dataTable """):
             self.class_coverage_ratio = line[0]
             if self.class_coverage_ratio is None:
-                class_coverage_ratio = 0.0
+                self.class_coverage_ratio = 0.0
             logging.info('class_coverage_ratio -> '+str(self.class_coverage_ratio))       
         
 
@@ -283,7 +284,7 @@ class Report(ApplicationLevelExtension):
         and t1.metric_id in ( 10203, 10204)) as fp_count ) as dataTable """):
             self.prog_in_trans = line[0]
             if self.prog_in_trans is None:
-                prog_in_trans = 0
+                self.prog_in_trans = 0
             logging.info('prog_in_trans -> '+str(self.prog_in_trans))
         
 
@@ -301,7 +302,7 @@ class Report(ApplicationLevelExtension):
         (select count(co1.object_id) from cdt_objects co1 where co1.object_type_str in ('IBM MQ Java Queue Publisher', 'IBM MQ Java Queue Receiver', 'IBM MQ Java Topic Publisher', 'IBM MQ Java Topic Receiver', 'IBM MQ Java Unknown Queue Publisher', 'IBM MQ Java Unknown Queue Receiver', 'IBM MQ Java Unknown Topic Publisher', 'IBM MQ Java Unknown Topic Receiver', 'Java AWS Simple Queue Service Publisher', 'Java AWS Simple Queue Service Receiver', 'Java AWS Simple Queue Service Unknown Publisher', 'Java AWS Simple Queue Service Unknown Receiver', 'JMS Java Queue Publisher', 'JMS Java Queue Receiver', 'JMS Java Topic Publisher', 'JMS Java Topic Receiver', 'JMS Java Unknown Queue Publisher', 'JMS Java Unknown Queue Receiver', 'JMS Java Unknown Topic Publisher', 'JMS Java Unknown Topic Receiver', 'RabbitMQ Java Queue Publisher', 'RabbitMQ Java Queue Receiver', 'RabbitMQ Unknown Java Queue Publisher', 'RabbitMQ Unknown Java Queue Receiver')))"""):
             self.ratio_of_msg_que = line[0]
             if self.ratio_of_msg_que is None:
-                ratio_of_msg_que = 'null'
+                self.ratio_of_msg_que = 'null'
             logging.info('ratio_of_msg_que -> '+str(self.ratio_of_msg_que))
             
         for line in kb.execute_query("""select CONCAT((select count(co1.object_id) from cdt_objects co1
@@ -312,7 +313,7 @@ class Report(ApplicationLevelExtension):
         (select count(co1.object_id) from cdt_objects co1 where co1.object_type_str in ('SOAP Client end point', 'SOAP Java Client', 'SOAP Java Client Operation', 'SOAP Java Operation', 'SOAP Java Port Type', 'SOAP Java Web Service')))"""):
             self.ratio_of_soap_java_ope = line[0]
             if self.ratio_of_soap_java_ope is None:
-                ratio_of_soap_java_ope = 'null'
+                self.ratio_of_soap_java_ope = 'null'
             logging.info('ratio_of_soap_java_ope -> '+str(self.ratio_of_soap_java_ope))
             
         for line in kb.execute_query("""select CONCAT( ( select count(co1.object_id) from cdt_objects co1
@@ -369,17 +370,30 @@ class Report(ApplicationLevelExtension):
                 self.ratio_of_typescript_angular_node_calls = 'null'
             logging.info('ratio_of_typescript_angular_node_calls -> '+str(self.ratio_of_typescript_angular_node_calls))
         
-        for line in kb.execute_query("""select count (*) from (select c1.metric_num_value as current_aefp , c2.metric_num_value as current_aetp, 
-        c3.metric_num_value as previous_aefp,c4.metric_num_value as previous_aetp , case when c4.metric_num_value <> 0 
-        then round(((c2.metric_num_value -c4.metric_num_value)/ c4.metric_num_value)*100,2) else 0 end varPercent  
-        from   dss_metric_results c1, dss_metric_results c2,dss_metric_results c3, dss_metric_results c4  
-        where c1.metric_id  = 10430 and c2.metric_id = 10440  and c3.metric_id  = 10430 and c4.metric_id = 10440  and c1.object_id in 
-        (select object_id from dss_objects where object_type_id =-102)   and c2.object_id in (select object_id from dss_objects where object_type_id =-102)  and c1.snapshot_id = 
-        (select max(snapshot_id) from dss_snapshots)  and c2.snapshot_id = (select max(snapshot_id) from dss_snapshots)  and c3.snapshot_id = 
-        (select snapshot_id from (select snapshot_id from dss_snapshots order by snapshot_id desc limit 2) as snapid 
-        order by snapshot_id limit 1) and c3.object_id in (select object_id from dss_objects where object_type_id =-102)   
-        and c4.object_id in (select object_id from dss_objects where object_type_id =-102)  and c4.snapshot_id = 
-        (select snapshot_id from (select snapshot_id from dss_snapshots order by snapshot_id desc limit 2) as snapid order by snapshot_id limit 1)) as t"""):
+        for line in central.execute_query("""SELECT  
+        CASE 
+            WHEN c4.metric_num_value <> 0 THEN 
+            ROUND(((c1.metric_num_value) / NULLIF((c1.metric_num_value + c2.metric_num_value), 0)) * 100, 2)
+            ELSE 0 
+        END AS varPercent  
+        FROM   
+        dss_metric_results c1, 
+        dss_metric_results c2, 
+        dss_metric_results c3, 
+        dss_metric_results c4  
+        WHERE 
+        c1.metric_id = 10430 
+        AND c2.metric_id = 10440  
+        AND c3.metric_id = 10430 
+        AND c4.metric_id = 10440  
+        AND c1.object_id IN (SELECT object_id FROM dss_objects WHERE object_type_id = -102)   
+        AND c2.object_id IN (SELECT object_id FROM dss_objects WHERE object_type_id = -102)  
+        AND c1.snapshot_id = (SELECT MAX(snapshot_id) FROM dss_snapshots)  
+        AND c2.snapshot_id = (SELECT MAX(snapshot_id) FROM dss_snapshots)  
+        AND c3.snapshot_id = (SELECT snapshot_id FROM (SELECT snapshot_id FROM dss_snapshots ORDER BY snapshot_id DESC LIMIT 2) AS snapid ORDER BY snapshot_id LIMIT 1) 
+        AND c3.object_id IN (SELECT object_id FROM dss_objects WHERE object_type_id = -102)   
+        AND c4.object_id IN (SELECT object_id FROM dss_objects WHERE object_type_id = -102) 
+        AND c4.snapshot_id = (SELECT snapshot_id FROM (SELECT snapshot_id FROM dss_snapshots ORDER BY snapshot_id DESC LIMIT 2) AS snapid ORDER BY snapshot_id LIMIT 1);"""):
             self.AEFP_AETP_ratio = line[0]
             if self.AEFP_AETP_ratio is None:
                 self.AEFP_AETP_ratio = 0
@@ -430,7 +444,9 @@ class Report(ApplicationLevelExtension):
             logging.info('extn_installed -> '+str(self.extn_installed))
             
         for line in central.execute_query("""SELECT COUNT(1) AS "ARTIFACTS_NOT_CONTRIBUTING_TO_FP"
-        FROM AEP_TECHNICAL_ARTIFACTS_VW A JOIN DSS_OBJECTS O ON A.OBJECT_ID = O.OBJECT_ID """):
+        FROM AEP_TECHNICAL_ARTIFACTS_VW A 
+		where A.snapshot_id = (select max (snapshot_id) from dss_snapshots)
+		and A.status != 'DELETED'"""):
             self.tech_code_review = line[0]
             if self.tech_code_review is None:
                 self.tech_code_review = 0
@@ -487,7 +503,7 @@ class Report(ApplicationLevelExtension):
     def insertTable_IMG_INDICATORS(self, kb):
 
         cr = kb.create_cursor()
-        insert_table_query = """Insert into IMG_INDICATORS(itrtn_no, app_name, start_date_time, end_date_time, no_of_scans_to_make_anlys_cmplnt_with_IMA, app_size_in_KLOC, artfct_cvrge_ratio, no_of_complex_trans, data_entities_by_trans, ratio_of_complete_trans_LOC, ratio_of_non_empty_trans, class_coverage_ratio,  no_of_links, ratio_of_msg_que, ratio_of_soap_java_ope, ratio_of_rest_call, ratio_of_ope_call, no_of_unrev_dyn_lick, ratio_of_spring_mvc, ratio_of_typescript_angular_node_calls, AEFP_AETP_ratio, no_of_valid_entry_points, no_of_valid_endpoints, no_of_exclusion, technology, extn_installed, tech_code_review) values  ("""+str(self.itrtn_no)+""", '"""+str(self.app_name)+"""', '"""+str(self.start_date_time)+"""', '"""+str(self.end_date_time)+"""', """+str(self.no_of_scans_to_make_anlys_cmplnt_with_IMA)+""", """+str(self.app_size_in_KLOC)+""", '"""+str(self.artfct_cvrge_ratio)+"""', """ +str(self.no_of_complex_trans)+""", """ +str(self.data_entities_by_trans)+""", """+str(self.ratio_of_complete_trans_LOC)+""", """+str(self.ratio_of_non_empty_trans)+""", """+str(self.class_coverage_ratio)+""",  """+str(self.no_of_links)+""", '"""+str(self.ratio_of_msg_que) +"""' ,'"""+str(self.ratio_of_soap_java_ope)+"""' ,'"""+str(self.ratio_of_rest_call)+"""' ,'"""+str(self.ratio_of_ope_call)+"""',""" +str(self.no_of_unrev_dyn_lick)+""",'"""+str(self.ratio_of_spring_mvc)+"""','"""+str(self.ratio_of_typescript_angular_node_calls)+"""', """ +str(self.AEFP_AETP_ratio)+""", """+str(self.no_of_valid_entry_points)+""", """+str(self.no_of_valid_endpoints)+""", """+str(self.no_of_exclusion) +""", '"""+str(self.technology)+"""', '"""+str(self.extn_installed)+"""',"""+str(self.tech_code_review)+""");"""
+        insert_table_query = """Insert into IMG_INDICATORS(itrtn_no, app_name, start_date_time, end_date_time, no_of_scans_to_make_anlys_cmplnt_with_IMA, app_size_in_KLOC, artfct_cvrge_ratio, no_of_complex_trans, data_entities_by_trans, ratio_of_complete_trans_LOC, ratio_of_non_empty_trans, class_coverage_ratio,  no_of_links, ratio_of_msg_que, ratio_of_soap_java_ope, ratio_of_rest_call, ratio_of_ope_call, no_of_unrev_dyn_lick, ratio_of_spring_mvc, ratio_of_typescript_angular_node_calls, AEFP_AETP_ratio, logs_info_missing_file_dll_jars, TFP_DFP_ratio, no_of_valid_entry_points, no_of_valid_endpoints, no_of_exclusion, unanalyzed_code, technology, extn_installed, tech_code_review) values  ("""+str(self.itrtn_no)+""", '"""+str(self.app_name)+"""', '"""+str(self.start_date_time)+"""', '"""+str(self.end_date_time)+"""', """+str(self.no_of_scans_to_make_anlys_cmplnt_with_IMA)+""", """+str(self.app_size_in_KLOC)+""", '"""+str(self.artfct_cvrge_ratio)+"""', """ +str(self.no_of_complex_trans)+""", """ +str(self.data_entities_by_trans)+""", """+str(self.ratio_of_complete_trans_LOC)+""", """+str(self.ratio_of_non_empty_trans)+""", """+str(self.class_coverage_ratio)+""", """+str(self.no_of_links)+""", '"""+str(self.ratio_of_msg_que) +"""' ,'"""+str(self.ratio_of_soap_java_ope)+"""' ,'"""+str(self.ratio_of_rest_call)+"""' ,'"""+str(self.ratio_of_ope_call)+"""',""" +str(self.no_of_unrev_dyn_lick)+""",'"""+str(self.ratio_of_spring_mvc)+"""','"""+str(self.ratio_of_typescript_angular_node_calls)+"""', """ +str(self.AEFP_AETP_ratio)+""", """+str(self.logs_info_missing_file_dll_jars)+""", """+str(self.TFP_DFP_ratio)+""", """+str(self.no_of_valid_entry_points)+""", """+str(self.no_of_valid_endpoints)+""", """+str(self.no_of_exclusion) +""","""+str(self.unanalyzed_code)+""", '"""+str(self.technology)+"""', '"""+str(self.extn_installed)+"""',"""+str(self.tech_code_review)+""");"""
         
         kb._execute_raw_query(cr, insert_table_query)    
 
