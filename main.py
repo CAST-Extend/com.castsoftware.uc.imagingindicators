@@ -1,4 +1,7 @@
 import os
+import platform
+import socket
+import subprocess
 import time
 import csv
 # import openpyxl
@@ -505,246 +508,33 @@ class Report(ApplicationLevelExtension):
         cr = kb.create_cursor()
         insert_table_query = """Insert into IMG_INDICATORS(itrtn_no, app_name, start_date_time, end_date_time, no_of_scans_to_make_anlys_cmplnt_with_IMA, app_size_in_KLOC, artfct_cvrge_ratio, no_of_complex_trans, data_entities_by_trans, ratio_of_complete_trans_LOC, ratio_of_non_empty_trans, class_coverage_ratio,  no_of_links, ratio_of_msg_que, ratio_of_soap_java_ope, ratio_of_rest_call, ratio_of_ope_call, no_of_unrev_dyn_lick, ratio_of_spring_mvc, ratio_of_typescript_angular_node_calls, AEFP_AETP_ratio, logs_info_missing_file_dll_jars, TFP_DFP_ratio, no_of_valid_entry_points, no_of_valid_endpoints, no_of_exclusion, unanalyzed_code, technology, extn_installed, tech_code_review) values  ("""+str(self.itrtn_no)+""", '"""+str(self.app_name)+"""', '"""+str(self.start_date_time)+"""', '"""+str(self.end_date_time)+"""', """+str(self.no_of_scans_to_make_anlys_cmplnt_with_IMA)+""", """+str(self.app_size_in_KLOC)+""", '"""+str(self.artfct_cvrge_ratio)+"""', """ +str(self.no_of_complex_trans)+""", """ +str(self.data_entities_by_trans)+""", """+str(self.ratio_of_complete_trans_LOC)+""", """+str(self.ratio_of_non_empty_trans)+""", """+str(self.class_coverage_ratio)+""", """+str(self.no_of_links)+""", '"""+str(self.ratio_of_msg_que) +"""' ,'"""+str(self.ratio_of_soap_java_ope)+"""' ,'"""+str(self.ratio_of_rest_call)+"""' ,'"""+str(self.ratio_of_ope_call)+"""',""" +str(self.no_of_unrev_dyn_lick)+""",'"""+str(self.ratio_of_spring_mvc)+"""','"""+str(self.ratio_of_typescript_angular_node_calls)+"""', """ +str(self.AEFP_AETP_ratio)+""", """+str(self.logs_info_missing_file_dll_jars)+""", """+str(self.TFP_DFP_ratio)+""", """+str(self.no_of_valid_entry_points)+""", """+str(self.no_of_valid_endpoints)+""", """+str(self.no_of_exclusion) +""","""+str(self.unanalyzed_code)+""", '"""+str(self.technology)+"""', '"""+str(self.extn_installed)+"""',"""+str(self.tech_code_review)+""");"""
         
-        kb._execute_raw_query(cr, insert_table_query)    
-
-    # def insertExcel_IMG_INDICATORS(self):
-    #                 # this import may fail in versions < 8.3
-    #     from cast.application import publish_report  # @UnresolvedImport
+        kb._execute_raw_query(cr, insert_table_query)
         
+        engine = create_postgres_engine(user='operator', password='CastAIP', host='tooling3', port=2284, database='postgres')
 
-                
-            
-         
- 
-        #     workbook = xlsxwriter.Workbook(report_path)
-        # # @type workbook: xlsxwriter.Workbook
-        #
-        #     worksheet = workbook.add_worksheet('Imaging_Indicators')
-        #
-        #     worksheet.write(0, 0, 'itrtn_no')
-        #     worksheet.write(0, 1, 'app_name')
-        #     worksheet.write(0, 2, 'start_date_time')
-        #     worksheet.write(0, 3, 'end_date_time')
-        #     worksheet.write(0, 4, 'no_of_scans_to_make_anlys_cmplnt_with_IMA')
-        #     worksheet.write(0, 5, 'app_size_in_KLOC')
-        #     worksheet.write(0, 6, 'artfct_cvrge_ratio')
-        #     worksheet.write(0, 7, 'no_of_complex_trans')
-        #     worksheet.write(0, 8, 'data_entities_by_trans')
-        #     worksheet.write(0, 9, 'ratio_of_complete_trans_LOC')
-        #     worksheet.write(0, 10, 'ratio_of_non_empty_trans')
-        #     worksheet.write(0, 11, 'class_coverage_ratio')
-        #     worksheet.write(0, 12, 'prog_in_trans')
-        #     worksheet.write(0, 13, 'no_of_links')
-        #     worksheet.write(0, 14, 'ratio_of_msg_que')
-        #     worksheet.write(0, 15, 'ratio_of_soap_java_ope')
-        #     worksheet.write(0, 16, 'ratio_of_rest_call')
-        #     worksheet.write(0, 17, 'ratio_of_ope_call')
-        #     worksheet.write(0, 18, 'no_of_unrev_dyn_lick')
-        #     worksheet.write(0, 19, 'ratio_of_spring_mvc')
-        #     worksheet.write(0, 20, 'ratio_of_typescript_angular_node_calls')
-        #     worksheet.write(0, 21, 'AEFP_AETP_ratio')
-        #     worksheet.write(0, 22, 'logs_info_missing_file_dll_jars')
-        #     worksheet.write(0, 23, 'TFP_DFP_ratio')
-        #     worksheet.write(0, 24, 'no_of_valid_entry_points')
-        #     worksheet.write(0, 25, 'no_of_valid_endpoints')
-        #     worksheet.write(0, 26, 'no_of_exclusion')
-        #     worksheet.write(0, 27, 'unanalyzed_code')
-        #     worksheet.write(0, 28, 'missing_tables')
-        #     worksheet.write(0, 29, 'no_of_tickets_to_make_ana_compliant_with_IMG')
-        #     worksheet.write(0, 30, 'technology')
-        #     worksheet.write(0, 31, 'extn_installed')
-        #     worksheet.write(0, 32, 'use_case')
-        #     worksheet.write(0, 33, 'tech_code_review')
-        #
-        #
-        #     worksheet.write(self.itrtn_no, 0, self.itrtn_no)
-        #     worksheet.write(self.itrtn_no, 1, self.app_name)
-        #     worksheet.write(self.itrtn_no, 2, self.start_date_time)
-        #     worksheet.write(self.itrtn_no, 3, self.end_date_time)
-        #     worksheet.write(self.itrtn_no, 4, self.no_of_scans_to_make_anlys_cmplnt_with_IMA)
-        #     worksheet.write(self.itrtn_no, 5, self.app_size_in_KLOC)
-        #     worksheet.write(self.itrtn_no, 6, self.artfct_cvrge_ratio)
-        #     worksheet.write(self.itrtn_no, 7, self.no_of_complex_trans)
-        #     worksheet.write(self.itrtn_no, 8, self.data_entities_by_trans)
-        #     worksheet.write(self.itrtn_no, 9, self.ratio_of_complete_trans_LOC)
-        #     worksheet.write(self.itrtn_no, 10, self.ratio_of_non_empty_trans)
-        #     worksheet.write(self.itrtn_no, 11, self.class_coverage_ratio)
-        #     worksheet.write(self.itrtn_no, 12, self.prog_in_trans)
-        #     worksheet.write(self.itrtn_no, 13, self.no_of_links)
-        #     worksheet.write(self.itrtn_no, 14, self.ratio_of_msg_que)
-        #     worksheet.write(self.itrtn_no, 15, self.ratio_of_soap_java_ope)
-        #     worksheet.write(self.itrtn_no, 16, self.ratio_of_rest_call)
-        #     worksheet.write(self.itrtn_no, 17, self.ratio_of_ope_call)
-        #     worksheet.write(self.itrtn_no, 18, self.no_of_unrev_dyn_lick)
-        #     worksheet.write(self.itrtn_no, 19, self.ratio_of_spring_mvc)
-        #     worksheet.write(self.itrtn_no, 20, self.ratio_of_typescript_angular_node_calls)
-        #     worksheet.write(self.itrtn_no, 21, self.AEFP_AETP_ratio)
-        #     worksheet.write(self.itrtn_no, 22, self.logs_info_missing_file_dll_jars)
-        #     worksheet.write(self.itrtn_no, 23, self.TFP_DFP_ratio)
-        #     worksheet.write(self.itrtn_no, 24, self.no_of_valid_entry_points)
-        #     worksheet.write(self.itrtn_no, 25, self.no_of_valid_endpoints)
-        #     worksheet.write(self.itrtn_no, 26, self.no_of_exclusion)
-        #     worksheet.write(self.itrtn_no, 27, self.unanalyzed_code)
-        #     worksheet.write(self.itrtn_no, 28, self.missing_tables)
-        #     worksheet.write(self.itrtn_no, 29, self.no_of_tickets_to_make_ana_compliant_with_IMG)
-        #     worksheet.write(self.itrtn_no, 30, self.technology)
-        #     worksheet.write(self.itrtn_no, 31, self.extn_installed)
-        #     worksheet.write(self.itrtn_no, 32, self.use_case)
-        #     worksheet.write(self.itrtn_no, 33, self.tech_code_review)                            
-            
-            # workbook = openpyxl.Workbook()
-            # sheet = workbook.active
-            # sheet.title = "Imaging_Indicators"
-            
-            # sheet.cell(row=1, column=1).value = 'itrtn_no'
-            # sheet.cell(row=1, column=2).value = 'app_name'
-            # sheet.cell(row=1, column=3).value = 'start_date_time'
-            # sheet.cell(row=1, column=4).value = 'end_date_time'
-            # sheet.cell(row=1, column=5).value = 'no_of_scans_to_make_anlys_cmplnt_with_IMA'
-            # sheet.cell(row=1, column=6).value = 'app_size_in_KLOC'
-            # sheet.cell(row=1, column=7).value = 'artfct_cvrge_ratio'
-            # sheet.cell(row=1, column=8).value = 'no_of_complex_trans'
-            # sheet.cell(row=1, column=9).value = 'data_entities_by_trans'
-            # sheet.cell(row=1, column=10).value = 'ratio_of_complete_trans_LOC'
-            # sheet.cell(row=1, column=11).value = 'ratio_of_non_empty_trans'
-            # sheet.cell(row=1, column=12).value = 'class_coverage_ratio'
-            # sheet.cell(row=1, column=13).value = 'prog_in_trans'
-            # sheet.cell(row=1, column=14).value = 'no_of_links'
-            # sheet.cell(row=1, column=15).value = 'ratio_of_msg_que'
-            # sheet.cell(row=1, column=16).value = 'ratio_of_soap_java_ope'
-            # sheet.cell(row=1, column=17).value = 'ratio_of_rest_call'
-            # sheet.cell(row=1, column=18).value = 'ratio_of_ope_call'
-            # sheet.cell(row=1, column=19).value = 'no_of_unrev_dyn_lick'
-            # sheet.cell(row=1, column=20).value = 'ratio_of_spring_mvc'
-            # sheet.cell(row=1, column=21).value = 'ratio_of_typescript_angular_node_calls'
-            # sheet.cell(row=1, column=22).value = 'AEFP_AETP_ratio'
-            # sheet.cell(row=1, column=23).value = 'logs_info_missing_file_dll_jars'
-            # sheet.cell(row=1, column=24).value = 'TFP_DFP_ratio'
-            # sheet.cell(row=1, column=25).value = 'no_of_valid_entry_points'
-            # sheet.cell(row=1, column=26).value = 'no_of_valid_endpoints'
-            # sheet.cell(row=1, column=27).value = 'no_of_exclusion'
-            # sheet.cell(row=1, column=28).value = 'unanalyzed_code'
-            # sheet.cell(row=1, column=29).value = 'missing_tables'
-            # sheet.cell(row=1, column=30).value = 'no_of_tickets_to_make_ana_compliant_with_IMG'
-            # sheet.cell(row=1, column=31).value = 'technology'
-            # sheet.cell(row=1, column=32).value = 'extn_installed'
-            # sheet.cell(row=1, column=33).value = 'use_case'
-            # sheet.cell(row=1, column=34).value = 'tech_code_review'
+        logging.info("vm_name logs started........................................................................ ")
 
+        vm_name = socket.gethostname()
+        logging.info("vm_name_socket -> "+ str(vm_name))
 
-            # sheet.cell(row=self.itrtn_no+1, column=1).value = self.itrtn_no
-            # sheet.cell(row=self.itrtn_no+1, column=2).value = self.app_name
-            # sheet.cell(row=self.itrtn_no+1, column=3).value = self.start_date_time
-            # sheet.cell(row=self.itrtn_no+1, column=4).value = self.end_date_time
-            # sheet.cell(row=self.itrtn_no+1, column=5).value = self.no_of_scans_to_make_anlys_cmplnt_with_IMA
-            # sheet.cell(row=self.itrtn_no+1, column=6).value = self.app_size_in_KLOC
-            # sheet.cell(row=self.itrtn_no+1, column=7).value = self.artfct_cvrge_ratio
-            # sheet.cell(row=self.itrtn_no+1, column=8).value = self.no_of_complex_trans
-            # sheet.cell(row=self.itrtn_no+1, column=9).value = self.data_entities_by_trans
-            # sheet.cell(row=self.itrtn_no+1, column=10).value = self.ratio_of_complete_trans_LOC
-            # sheet.cell(row=self.itrtn_no+1, column=11).value = self.ratio_of_non_empty_trans
-            # sheet.cell(row=self.itrtn_no+1, column=12).value = self.class_coverage_ratio
-            # sheet.cell(row=self.itrtn_no+1, column=13).value = self.prog_in_trans
-            # sheet.cell(row=self.itrtn_no+1, column=14).value = self.no_of_links
-            # sheet.cell(row=self.itrtn_no+1, column=15).value = self.ratio_of_msg_que
-            # sheet.cell(row=self.itrtn_no+1, column=16).value = self.ratio_of_soap_java_ope
-            # sheet.cell(row=self.itrtn_no+1, column=17).value = self.ratio_of_rest_call
-            # sheet.cell(row=self.itrtn_no+1, column=18).value = self.ratio_of_ope_call
-            # sheet.cell(row=self.itrtn_no+1, column=19).value = self.no_of_unrev_dyn_lick
-            # sheet.cell(row=self.itrtn_no+1, column=20).value = self.ratio_of_spring_mvc
-            # sheet.cell(row=self.itrtn_no+1, column=21).value = self.ratio_of_typescript_angular_node_calls
-            # sheet.cell(row=self.itrtn_no+1, column=22).value = self.AEFP_AETP_ratio
-            # sheet.cell(row=self.itrtn_no+1, column=23).value = self.logs_info_missing_file_dll_jars
-            # sheet.cell(row=self.itrtn_no+1, column=24).value = self.TFP_DFP_ratio
-            # sheet.cell(row=self.itrtn_no+1, column=25).value = self.no_of_valid_entry_points
-            # sheet.cell(row=self.itrtn_no+1, column=26).value = self.no_of_valid_endpoints
-            # sheet.cell(row=self.itrtn_no+1, column=27).value = self.no_of_exclusion
-            # sheet.cell(row=self.itrtn_no+1, column=28).value = self.unanalyzed_code
-            # sheet.cell(row=self.itrtn_no+1, column=29).value = self.missing_tables
-            # sheet.cell(row=self.itrtn_no+1, column=30).value = self.no_of_tickets_to_make_ana_compliant_with_IMG
-            # sheet.cell(row=self.itrtn_no+1, column=31).value = self.technology
-            # sheet.cell(row=self.itrtn_no+1, column=32).value = self.extn_installed
-            # sheet.cell(row=self.itrtn_no+1, column=33).value = self.use_case
-            # sheet.cell(row=self.itrtn_no+1, column=34).value = self.tech_code_review
+        vm_name_platform = platform.node()
+        logging.info("vm_name_platform -> "+ str(vm_name_platform))
 
-            # workbook.save(report_path)
+        vm_name_os = os.getenv('HOSTNAME')
+        logging.info("vm_name_os -> "+ str(vm_name_os))
 
-        # else:
-            # worksheet.write(self.itrtn_no, 0, self.itrtn_no)
-            # worksheet.write(self.itrtn_no, 1, self.app_name)
-            # worksheet.write(self.itrtn_no, 2, self.start_date_time)
-            # worksheet.write(self.itrtn_no, 3, self.end_date_time)
-            # worksheet.write(self.itrtn_no, 4, self.no_of_scans_to_make_anlys_cmplnt_with_IMA)
-            # worksheet.write(self.itrtn_no, 5, self.app_size_in_KLOC)
-            # worksheet.write(self.itrtn_no, 6, self.artfct_cvrge_ratio)
-            # worksheet.write(self.itrtn_no, 7, self.no_of_complex_trans)
-            # worksheet.write(self.itrtn_no, 8, self.data_entities_by_trans)
-            # worksheet.write(self.itrtn_no, 9, self.ratio_of_complete_trans_LOC)
-            # worksheet.write(self.itrtn_no, 10, self.ratio_of_non_empty_trans)
-            # worksheet.write(self.itrtn_no, 11, self.class_coverage_ratio)
-            # worksheet.write(self.itrtn_no, 12, self.prog_in_trans)
-            # worksheet.write(self.itrtn_no, 13, self.no_of_links)
-            # worksheet.write(self.itrtn_no, 14, self.ratio_of_msg_que)
-            # worksheet.write(self.itrtn_no, 15, self.ratio_of_soap_java_ope)
-            # worksheet.write(self.itrtn_no, 16, self.ratio_of_rest_call)
-            # worksheet.write(self.itrtn_no, 17, self.ratio_of_ope_call)
-            # worksheet.write(self.itrtn_no, 18, self.no_of_unrev_dyn_lick)
-            # worksheet.write(self.itrtn_no, 19, self.ratio_of_spring_mvc)
-            # worksheet.write(self.itrtn_no, 20, self.ratio_of_typescript_angular_node_calls)
-            # worksheet.write(self.itrtn_no, 21, self.AEFP_AETP_ratio)
-            # worksheet.write(self.itrtn_no, 22, self.logs_info_missing_file_dll_jars)
-            # worksheet.write(self.itrtn_no, 23, self.TFP_DFP_ratio)
-            # worksheet.write(self.itrtn_no, 24, self.no_of_valid_entry_points)
-            # worksheet.write(self.itrtn_no, 25, self.no_of_valid_endpoints)
-            # worksheet.write(self.itrtn_no, 26, self.no_of_exclusion)
-            # worksheet.write(self.itrtn_no, 27, self.unanalyzed_code)
-            # worksheet.write(self.itrtn_no, 28, self.missing_tables)
-            # worksheet.write(self.itrtn_no, 29, self.no_of_tickets_to_make_ana_compliant_with_IMG)
-            # worksheet.write(self.itrtn_no, 30, self.technology)
-            # worksheet.write(self.itrtn_no, 31, self.extn_installed)
-            # worksheet.write(self.itrtn_no, 32, self.use_case)
-            # worksheet.write(self.itrtn_no, 33, self.tech_code_review) 
-            
-            
-            # wb_append = openpyxl.load_workbook(report_path)
-            # sheet = wb_append.active
-            #
-            # sheet.cell(row=self.itrtn_no+1, column=1).value = self.itrtn_no
-            # sheet.cell(row=self.itrtn_no+1, column=2).value = self.app_name
-            # sheet.cell(row=self.itrtn_no+1, column=3).value = self.start_date_time
-            # sheet.cell(row=self.itrtn_no+1, column=4).value = self.end_date_time
-            # sheet.cell(row=self.itrtn_no+1, column=5).value = self.no_of_scans_to_make_anlys_cmplnt_with_IMA
-            # sheet.cell(row=self.itrtn_no+1, column=6).value = self.app_size_in_KLOC
-            # sheet.cell(row=self.itrtn_no+1, column=7).value = self.artfct_cvrge_ratio
-            # sheet.cell(row=self.itrtn_no+1, column=8).value = self.no_of_complex_trans
-            # sheet.cell(row=self.itrtn_no+1, column=9).value = self.data_entities_by_trans
-            # sheet.cell(row=self.itrtn_no+1, column=10).value = self.ratio_of_complete_trans_LOC
-            # sheet.cell(row=self.itrtn_no+1, column=11).value = self.ratio_of_non_empty_trans
-            # sheet.cell(row=self.itrtn_no+1, column=12).value = self.class_coverage_ratio
-            # sheet.cell(row=self.itrtn_no+1, column=13).value = self.prog_in_trans
-            # sheet.cell(row=self.itrtn_no+1, column=14).value = self.no_of_links
-            # sheet.cell(row=self.itrtn_no+1, column=15).value = self.ratio_of_msg_que
-            # sheet.cell(row=self.itrtn_no+1, column=16).value = self.ratio_of_soap_java_ope
-            # sheet.cell(row=self.itrtn_no+1, column=17).value = self.ratio_of_rest_call
-            # sheet.cell(row=self.itrtn_no+1, column=18).value = self.ratio_of_ope_call
-            # sheet.cell(row=self.itrtn_no+1, column=19).value = self.no_of_unrev_dyn_lick
-            # sheet.cell(row=self.itrtn_no+1, column=20).value = self.ratio_of_spring_mvc
-            # sheet.cell(row=self.itrtn_no+1, column=21).value = self.ratio_of_typescript_angular_node_calls
-            # sheet.cell(row=self.itrtn_no+1, column=22).value = self.AEFP_AETP_ratio
-            # sheet.cell(row=self.itrtn_no+1, column=23).value = self.logs_info_missing_file_dll_jars
-            # sheet.cell(row=self.itrtn_no+1, column=24).value = self.TFP_DFP_ratio
-            # sheet.cell(row=self.itrtn_no+1, column=25).value = self.no_of_valid_entry_points
-            # sheet.cell(row=self.itrtn_no+1, column=26).value = self.no_of_valid_endpoints
-            # sheet.cell(row=self.itrtn_no+1, column=27).value = self.no_of_exclusion
-            # sheet.cell(row=self.itrtn_no+1, column=28).value = self.unanalyzed_code
-            # sheet.cell(row=self.itrtn_no+1, column=29).value = self.missing_tables
-            # sheet.cell(row=self.itrtn_no+1, column=30).value = self.no_of_tickets_to_make_ana_compliant_with_IMG
-            # sheet.cell(row=self.itrtn_no+1, column=31).value = self.technology
-            # sheet.cell(row=self.itrtn_no+1, column=32).value = self.extn_installed
-            # sheet.cell(row=self.itrtn_no+1, column=33).value = self.use_case
-            # sheet.cell(row=self.itrtn_no+1, column=34).value = self.tech_code_review
-            #
-            # wb_append.save(report_path)
-            
+        vm_name_subprocess = subprocess.check_output('hostname', shell=True).decode().strip()
+        logging.info("vm_name_subprocess -> "+ str(vm_name_subprocess))
 
-        # publish_report('Imaging Indicators Results', 'OK', "Imaging Indicators", '', detail_report_path=report_path)
+        vm_name_popen = os.popen('hostname').read().strip()
+        logging.info("vm_name -> "+ str(vm_name_popen))
+
+        logging.info("vm_name logs ended........................................................................ ")
+        
+        insert_table_query_central = """Insert into "Imaging_Indicator".img_indicators_central(itrtn_no, vm_name, app_name, start_date_time, end_date_time, no_of_scans_to_make_anlys_cmplnt_with_IMA, app_size_in_KLOC, artfct_cvrge_ratio, no_of_complex_trans, data_entities_by_trans, ratio_of_complete_trans_LOC, ratio_of_non_empty_trans, class_coverage_ratio,  no_of_links, ratio_of_msg_que, ratio_of_soap_java_ope, ratio_of_rest_call, ratio_of_ope_call, no_of_unrev_dyn_lick, ratio_of_spring_mvc, ratio_of_typescript_angular_node_calls, AEFP_AETP_ratio, logs_info_missing_file_dll_jars, TFP_DFP_ratio, no_of_valid_entry_points, no_of_valid_endpoints, no_of_exclusion, unanalyzed_code, technology, extn_installed, tech_code_review) values  ("""+str(self.itrtn_no)+""", '"""+str(vm_name)+"""','"""+str(self.app_name)+"""', '"""+str(self.start_date_time)+"""', '"""+str(self.end_date_time)+"""', """+str(self.no_of_scans_to_make_anlys_cmplnt_with_IMA)+""", """+str(self.app_size_in_KLOC)+""", '"""+str(self.artfct_cvrge_ratio)+"""', """ +str(self.no_of_complex_trans)+""", """ +str(self.data_entities_by_trans)+""", """+str(self.ratio_of_complete_trans_LOC)+""", """+str(self.ratio_of_non_empty_trans)+""", """+str(self.class_coverage_ratio)+""", """+str(self.no_of_links)+""", '"""+str(self.ratio_of_msg_que) +"""' ,'"""+str(self.ratio_of_soap_java_ope)+"""' ,'"""+str(self.ratio_of_rest_call)+"""' ,'"""+str(self.ratio_of_ope_call)+"""',""" +str(self.no_of_unrev_dyn_lick)+""",'"""+str(self.ratio_of_spring_mvc)+"""','"""+str(self.ratio_of_typescript_angular_node_calls)+"""', """ +str(self.AEFP_AETP_ratio)+""", """+str(self.logs_info_missing_file_dll_jars)+""", """+str(self.TFP_DFP_ratio)+""", """+str(self.no_of_valid_entry_points)+""", """+str(self.no_of_valid_endpoints)+""", """+str(self.no_of_exclusion) +""","""+str(self.unanalyzed_code)+""", '"""+str(self.technology)+"""', '"""+str(self.extn_installed)+"""',"""+str(self.tech_code_review)+""");"""
+          
+        with engine.connect() as connection:
+            # Execute the insert statement
+            logging.info("Inserting data to the IMG_INDICATORS_CENTRAL table......")  
+            connection.execute(insert_table_query_central)
+            logging.info("Data inserted successfully to the IMG_INDICATORS_CENTRAL table.")    
